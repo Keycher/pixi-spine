@@ -1,8 +1,9 @@
-import { Matrix } from '@pixi/core';
-import type { Updatable } from './Updatable';
+import { Matrix } from 'pixi.js';
+import { IBone, MathUtils, settings, TransformMode, Vector2 } from '@pixi-spine/base';
+
 import type { BoneData } from './BoneData';
 import type { Skeleton } from './Skeleton';
-import { IBone, MathUtils, settings, TransformMode, Vector2 } from '@pixi-spine/base';
+import type { Updatable } from './Updatable';
 
 /**
  * @public

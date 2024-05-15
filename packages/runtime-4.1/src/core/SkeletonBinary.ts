@@ -1,4 +1,3 @@
-import type { Attachment, AttachmentLoader, MeshAttachment, VertexAttachment } from './attachments';
 import {
     AlphaTimeline,
     Animation,
@@ -31,18 +30,20 @@ import {
     TranslateXTimeline,
     TranslateYTimeline,
 } from './Animation';
-import { Event } from './Event';
-import { SkeletonData } from './SkeletonData';
-import { SlotData } from './SlotData';
-import { BoneData } from './BoneData';
-import { IkConstraintData } from './IkConstraintData';
-import { TransformConstraintData } from './TransformConstraintData';
-import { PathConstraintData, SpacingMode } from './PathConstraintData';
-import { Skin } from './Skin';
-import { EventData } from './EventData';
-import { AttachmentType, BinaryInput, Color, IHasTextureRegion, PositionMode, Utils } from '@pixi-spine/base';
-import { BLEND_MODES } from '@pixi/core';
 import { Sequence, SequenceModeValues } from './attachments';
+import { BoneData } from './BoneData';
+import { Event } from './Event';
+import { EventData } from './EventData';
+import { IkConstraintData } from './IkConstraintData';
+import { PathConstraintData, SpacingMode } from './PathConstraintData';
+import { SkeletonData } from './SkeletonData';
+import { Skin } from './Skin';
+import { SlotData } from './SlotData';
+import { TransformConstraintData } from './TransformConstraintData';
+import { AttachmentType, BinaryInput, Color, IHasTextureRegion, PositionMode, Utils } from '@pixi-spine/base';
+
+import type { BLEND_MODES } from 'pixi.js';
+import type { Attachment, AttachmentLoader, MeshAttachment, VertexAttachment } from './attachments';
 
 /** Loads skeleton data in the Spine binary format.
  *
@@ -53,7 +54,7 @@ import { Sequence, SequenceModeValues } from './attachments';
  * */
 export class SkeletonBinary {
     ver40 = false;
-    static BlendModeValues = [BLEND_MODES.NORMAL, BLEND_MODES.ADD, BLEND_MODES.MULTIPLY, BLEND_MODES.SCREEN];
+    static BlendModeValues: BLEND_MODES[] = ['normal', 'add', 'multiply', 'screen'];
     /** Scales bone positions, image sizes, and translations as they are loaded. This allows different size images to be used at
      * runtime than were used in Spine.
      *
@@ -153,7 +154,7 @@ export class SkeletonBinary {
             if (darkColor != -1) Color.rgb888ToColor((data.darkColor = new Color()), darkColor);
 
             data.attachmentName = input.readStringRef();
-            data.blendMode = input.readInt(true);
+            data.blendMode = SkeletonBinary.BlendModeValues[input.readInt(true)];
             skeletonData.slots.push(data);
         }
 

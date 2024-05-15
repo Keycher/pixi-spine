@@ -1,8 +1,8 @@
 import { Color } from '@pixi-spine/base';
 
-import type { ISlotData } from '@pixi-spine/base';
-import { BLEND_MODES } from '@pixi/core';
+import type { BLEND_MODES } from 'pixi.js';
 import type { BoneData } from './BoneData';
+import type { ISlotData } from '@pixi-spine/base';
 
 /** Stores the setup pose for a {@link Slot}.
  * @public
@@ -29,7 +29,7 @@ export class SlotData implements ISlotData {
     attachmentName: string | null = null;
 
     /** The blend mode for drawing the slot's attachment. */
-    blendMode: BLEND_MODES = BLEND_MODES.NORMAL;
+    blendMode: BLEND_MODES = 'normal';
 
     constructor(index: number, name: string, boneData: BoneData) {
         if (index < 0) throw new Error('index must be >= 0.');

@@ -2,11 +2,13 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="../global.d.ts" />
 
+// eslint-disable-next-line import/no-duplicates
 import '@pixi-spine/loader-base'; // Side effect install atlas loader
-// eslint-disable-next-line @typescript-eslint/no-duplicate-imports
+// eslint-disable-next-line import/no-duplicates
 import { ISpineResource, SpineLoaderAbstract } from '@pixi-spine/loader-base';
-import type { ISkeletonParser, TextureAtlas } from '@pixi-spine/base';
 import { AtlasAttachmentLoader, SkeletonBinary, SkeletonData, SkeletonJson } from '@pixi-spine/runtime-3.8';
+
+import type { ISkeletonParser, TextureAtlas } from '@pixi-spine/base';
 
 /**
  * @internal

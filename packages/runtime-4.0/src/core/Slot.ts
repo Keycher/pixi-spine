@@ -1,9 +1,10 @@
 import { Color, ISlot } from '@pixi-spine/base';
 
+import type { BLEND_MODES } from 'pixi.js';
 import type { Attachment } from './attachments/Attachment';
 import type { Bone } from './Bone';
-import type { SlotData } from './SlotData';
 import type { Skeleton } from './Skeleton';
+import type { SlotData } from './SlotData';
 
 /** Stores a slot's current pose. Slots organize attachments for {@link Skeleton#drawOrder} purposes and provide a place to store
  * state for an attachment. State cannot be stored in an attachment itself because attachments are stateless and may be shared
@@ -12,7 +13,7 @@ import type { Skeleton } from './Skeleton';
  * */
 export class Slot implements ISlot {
     // this is canon
-    blendMode: number;
+    blendMode: BLEND_MODES;
     /** The slot's setup pose data. */
     data: SlotData;
 

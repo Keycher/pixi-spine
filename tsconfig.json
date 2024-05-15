@@ -17,8 +17,9 @@
         "declarationMap": false,
         "allowSyntheticDefaultImports": true,
         "importsNotUsedAsValues": "error",
+        "ignoreDeprecations": "5.0",
         "lib": [
-            "es6",
+            "es2020",
             "dom"
         ],
     },

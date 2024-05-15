@@ -1,14 +1,12 @@
+import { Color, Container, Graphics, MeshSimple, Polygon, Rectangle, Sprite, Texture } from 'pixi.js';
 import { AttachmentType } from './core/AttachmentType';
 import { TextureRegion } from './core/TextureRegion';
 import { MathUtils } from './core/Utils';
+import { settings } from './settings';
+
+import type { SimpleMeshOptions } from 'pixi.js/lib/scene/mesh-simple/MeshSimple';
 import type { IAnimationState, IAnimationStateData } from './core/IAnimation';
 import type { IAttachment, IClippingAttachment, IMeshAttachment, IRegionAttachment, ISkeleton, ISkeletonData, ISlot, IVertexAttachment } from './core/ISkeleton';
-import { DRAW_MODES, Rectangle, Polygon, Transform, Texture, utils } from '@pixi/core';
-import { Container, DisplayObject } from '@pixi/display';
-import { Sprite } from '@pixi/sprite';
-import { SimpleMesh } from '@pixi/mesh-extras';
-import { Graphics } from '@pixi/graphics';
-import { settings } from './settings';
 import type { ISpineDebugRenderer } from './SpineDebugRenderer';
 
 const tempRgb = [0, 0, 0];
@@ -16,7 +14,7 @@ const tempRgb = [0, 0, 0];
 /**
  * @public
  */
-export interface ISpineDisplayObject extends DisplayObject {
+export interface ISpineDisplayObject extends Container {
     region?: TextureRegion;
     attachment?: IAttachment;
 }
@@ -32,12 +30,12 @@ export class SpineSprite extends Sprite implements ISpineDisplayObject {
 /**
  * @public
  */
-export class SpineMesh extends SimpleMesh implements ISpineDisplayObject {
+export class SpineMesh extends MeshSimple implements ISpineDisplayObject {
     region?: TextureRegion = null;
     attachment?: IAttachment = null;
 
-    constructor(texture: Texture, vertices?: Float32Array, uvs?: Float32Array, indices?: Uint16Array, drawMode?: number) {
-        super(texture, vertices, uvs, indices, drawMode);
+    constructor(options: SimpleMeshOptions) {
+        super(options);
     }
 }
 
@@ -65,7 +63,7 @@ export abstract class SpineBase<
     extends Container
     implements GlobalMixins.Spine
 {
-    tintRgb: ArrayLike<number>;
+    tintRgb: Color;
     spineData: SkeletonData;
     skeleton: Skeleton;
     stateData: AnimationStateData;
@@ -164,7 +162,7 @@ export abstract class SpineBase<
          * @member {number}
          * @memberof spine.Spine#
          */
-        this.tintRgb = new Float32Array([1, 1, 1]);
+        this.tintRgb = new Color(new Float32Array([1, 1, 1]));
 
         this.autoUpdate = true;
         this.visible = true;
@@ -188,7 +186,7 @@ export abstract class SpineBase<
     set autoUpdate(value: boolean) {
         if (value !== this._autoUpdate) {
             this._autoUpdate = value;
-            this.updateTransform = value ? SpineBase.prototype.autoUpdateTransform : Container.prototype.updateTransform;
+            this.onRender = value ? SpineBase.prototype.autoUpdateTransform : Container.prototype._onRender;
         }
     }
 
@@ -200,11 +198,11 @@ export abstract class SpineBase<
      * @default 0xFFFFFF
      */
     get tint(): number {
-        return utils.rgb2hex(this.tintRgb as any);
+        return this.tintRgb.toNumber();
     }
 
     set tint(value: number) {
-        this.tintRgb = utils.hex2rgb(value, this.tintRgb as any);
+        this.tintRgb = new Color(value);
     }
 
     /**
@@ -251,7 +249,7 @@ export abstract class SpineBase<
             light = globalClr.light;
             dark = globalClr.dark;
         } else {
-            light = this.tintRgb;
+            light = this.tintRgb.toRgbArray();
         }
 
         // let thack = false;
@@ -277,9 +275,7 @@ export abstract class SpineBase<
 
             switch (attachment != null && attachment.type) {
                 case AttachmentType.Region:
-                    const transform = slotContainer.transform;
-
-                    transform.setFromMatrix(slot.bone.matrix);
+                    slotContainer.setFromMatrix(slot.bone.matrix);
 
                     region = (attachment as IRegionAttachment).region;
                     if (slot.currentMesh) {
@@ -325,7 +321,7 @@ export abstract class SpineBase<
                         tempRgb[0] = light[0] * slot.color.r * attColor.r;
                         tempRgb[1] = light[1] * slot.color.g * attColor.g;
                         tempRgb[2] = light[2] * slot.color.b * attColor.b;
-                        slot.currentSprite.tint = utils.rgb2hex(tempRgb);
+                        slot.currentSprite.tint = new Color(tempRgb).toNumber();
                     }
                     slot.currentSprite.blendMode = slot.blendMode;
                     break;
@@ -337,12 +333,12 @@ export abstract class SpineBase<
                         slot.currentSprite = null;
                         slot.currentSpriteName = undefined;
 
-                        // TODO: refactor this shit
-                        const transform = new Transform();
-
-                        (transform as any)._parentID = -1;
-                        (transform as any)._worldID = (slotContainer.transform as any)._worldID;
-                        slotContainer.transform = transform;
+                        // TODO: refactor this shit, pixiV8 transform
+                        // const transform = new Transform();
+                        //
+                        // (transform as any)._parentID = -1;
+                        // (transform as any)._worldID = (slotContainer.transform as any)._worldID;
+                        // slotContainer.transform = transform;
                     }
                     if (!region) {
                         if (slot.currentMesh) {
@@ -383,7 +379,7 @@ export abstract class SpineBase<
                         tempRgb[0] = light[0] * slot.color.r * attColor.r;
                         tempRgb[1] = light[1] * slot.color.g * attColor.g;
                         tempRgb[2] = light[2] * slot.color.b * attColor.b;
-                        slot.currentMesh.tint = utils.rgb2hex(tempRgb);
+                        slot.currentMesh.tint = new Color(tempRgb).toNumber();
                     }
                     slot.currentMesh.blendMode = slot.blendMode;
                     if (!slot.hackRegion) {
@@ -516,7 +512,7 @@ export abstract class SpineBase<
         mesh.attachment = attachment;
         mesh.texture = region.texture;
         region.texture.updateUvs();
-        mesh.uvBuffer.update(attachment.regionUVs);
+        // mesh.uvBuffer.update(attachment.regionUVs);
     }
 
     protected lastTime: number;
@@ -537,7 +533,7 @@ export abstract class SpineBase<
             this.lastTime = 0;
         }
 
-        Container.prototype.updateTransform.call(this);
+        Container.prototype._onRender?.call(this);
     }
 
     /**
@@ -581,13 +577,17 @@ export abstract class SpineBase<
             slot.hackAttachment = null;
             slot.hackRegion = null;
         }
-        const strip = this.newMesh(
-            region ? region.texture : null,
-            new Float32Array(attachment.regionUVs.length),
-            attachment.regionUVs,
-            new Uint16Array(attachment.triangles),
-            DRAW_MODES.TRIANGLES
-        );
+
+        // TODO indices Uint16Array to Uint32Array ??
+        const options: SimpleMeshOptions = {
+            indices: new Uint32Array(attachment.triangles),
+            texture: region ? region.texture : null,
+            topology: 'triangle-list',
+            uvs: attachment.regionUVs,
+            vertices: new Float32Array(attachment.regionUVs.length),
+        };
+
+        const strip = this.newMesh(options);
 
         if (typeof (strip as any)._canvasPadding !== 'undefined') {
             (strip as any)._canvasPadding = 1.5;
@@ -625,13 +625,13 @@ export abstract class SpineBase<
     }
 
     updateGraphics(slot: ISlot, clip: IClippingAttachment) {
-        const geom = slot.currentGraphics.geometry;
-        const vertices = (geom.graphicsData[0].shape as Polygon).points;
+        const geom = slot.currentGraphics.context._activePath;
+        const vertices = (geom.shapePath.shapePrimitives[0].shape as Polygon).points;
         const n = clip.worldVerticesLength;
 
         vertices.length = n;
         clip.computeWorldVertices(slot, 0, n, vertices, 0, 2);
-        geom.invalidate();
+        geom.dirty = true;
     }
 
     /**
@@ -759,8 +759,8 @@ export abstract class SpineBase<
         return new Graphics();
     }
 
-    newMesh(texture: Texture, vertices?: Float32Array, uvs?: Float32Array, indices?: Uint16Array, drawMode?: number) {
-        return new SpineMesh(texture, vertices, uvs, indices, drawMode);
+    newMesh(options: SimpleMeshOptions) {
+        return new SpineMesh(options);
     }
 
     transformHack() {

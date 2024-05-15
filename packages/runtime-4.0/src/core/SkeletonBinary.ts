@@ -1,4 +1,3 @@
-import type { Attachment, AttachmentLoader, MeshAttachment, VertexAttachment } from './attachments';
 import {
     AlphaTimeline,
     Animation,
@@ -30,17 +29,19 @@ import {
     TranslateXTimeline,
     TranslateYTimeline,
 } from './Animation';
-import { Event } from './Event';
-import { SkeletonData } from './SkeletonData';
-import { SlotData } from './SlotData';
 import { BoneData } from './BoneData';
-import { IkConstraintData } from './IkConstraintData';
-import { TransformConstraintData } from './TransformConstraintData';
-import { PathConstraintData, SpacingMode } from './PathConstraintData';
-import { Skin } from './Skin';
+import { Event } from './Event';
 import { EventData } from './EventData';
+import { IkConstraintData } from './IkConstraintData';
+import { PathConstraintData, SpacingMode } from './PathConstraintData';
+import { SkeletonData } from './SkeletonData';
+import { Skin } from './Skin';
+import { SlotData } from './SlotData';
+import { TransformConstraintData } from './TransformConstraintData';
 import { AttachmentType, BinaryInput, Color, PositionMode, Utils } from '@pixi-spine/base';
-import { BLEND_MODES } from '@pixi/core';
+
+import type { BLEND_MODES } from 'pixi.js';
+import type { Attachment, AttachmentLoader, MeshAttachment, VertexAttachment } from './attachments';
 
 /** Loads skeleton data in the Spine binary format.
  *
@@ -50,7 +51,7 @@ import { BLEND_MODES } from '@pixi/core';
  * @public
  * */
 export class SkeletonBinary {
-    static BlendModeValues = [BLEND_MODES.NORMAL, BLEND_MODES.ADD, BLEND_MODES.MULTIPLY, BLEND_MODES.SCREEN];
+    static BlendModeValues: BLEND_MODES[] = ['normal', 'add', 'multiply', 'screen'];
     /** Scales bone positions, image sizes, and translations as they are loaded. This allows different size images to be used at
      * runtime than were used in Spine.
      *

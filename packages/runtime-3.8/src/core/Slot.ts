@@ -1,5 +1,6 @@
 import { Color, ISlot } from '@pixi-spine/base';
 
+import type { BLEND_MODES } from 'pixi.js';
 import type { Attachment } from './attachments/Attachment';
 import type { Bone } from './Bone';
 import type { SlotData } from './SlotData';
@@ -9,7 +10,7 @@ import type { SlotData } from './SlotData';
  */
 export class Slot implements ISlot {
     // this is canon
-    blendMode: number;
+    blendMode: BLEND_MODES;
     data: SlotData;
     bone: Bone;
     color: Color;

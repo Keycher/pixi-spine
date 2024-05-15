@@ -1,6 +1,6 @@
 {
   "useWorkspaces": true,
-  "version": "4.0.4",
+  "version": "5.0.0",
   "command": {
     "publish": {
       "graphType": "all"

@@ -1,13 +1,3 @@
-import type { Attachment, AttachmentLoader, MeshAttachment, VertexAttachment } from './attachments';
-import { Event } from './Event';
-import { SkeletonData } from './SkeletonData';
-import { SlotData } from './SlotData';
-import { BoneData } from './BoneData';
-import { IkConstraintData } from './IkConstraintData';
-import { TransformConstraintData } from './TransformConstraintData';
-import { PathConstraintData, SpacingMode } from './PathConstraintData';
-import { Skin } from './Skin';
-import { EventData } from './EventData';
 import {
     Animation,
     AttachmentTimeline,
@@ -28,8 +18,19 @@ import {
     TranslateTimeline,
     TwoColorTimeline,
 } from './Animation';
+import { BoneData } from './BoneData';
+import { Event } from './Event';
+import { EventData } from './EventData';
+import { IkConstraintData } from './IkConstraintData';
+import { PathConstraintData, SpacingMode } from './PathConstraintData';
+import { SkeletonData } from './SkeletonData';
+import { Skin } from './Skin';
+import { SlotData } from './SlotData';
+import { TransformConstraintData } from './TransformConstraintData';
 import { AttachmentType, BinaryInput, Color, PositionMode, RotateMode, TransformMode, Utils } from '@pixi-spine/base';
-import { BLEND_MODES } from '@pixi/core';
+
+import type { BLEND_MODES } from 'pixi.js';
+import type { Attachment, AttachmentLoader, MeshAttachment, VertexAttachment } from './attachments';
 
 /**
  * @public
@@ -49,7 +50,7 @@ export class SkeletonBinary {
     static PositionModeValues = [PositionMode.Fixed, PositionMode.Percent];
     static SpacingModeValues = [SpacingMode.Length, SpacingMode.Fixed, SpacingMode.Percent];
     static RotateModeValues = [RotateMode.Tangent, RotateMode.Chain, RotateMode.ChainScale];
-    static BlendModeValues = [BLEND_MODES.NORMAL, BLEND_MODES.ADD, BLEND_MODES.MULTIPLY, BLEND_MODES.SCREEN];
+    static BlendModeValues: BLEND_MODES[] = ['normal', 'add', 'multiply', 'screen'];
 
     static BONE_ROTATE = 0;
     static BONE_TRANSLATE = 1;

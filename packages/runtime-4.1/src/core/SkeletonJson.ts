@@ -1,4 +1,3 @@
-import type { Attachment, AttachmentLoader, MeshAttachment, VertexAttachment } from './attachments';
 import {
     AlphaTimeline,
     Animation,
@@ -31,18 +30,19 @@ import {
     TranslateXTimeline,
     TranslateYTimeline,
 } from './Animation';
-import { Event } from './Event';
-import { SkeletonData } from './SkeletonData';
-import { SlotData } from './SlotData';
-import { BoneData } from './BoneData';
-import { IkConstraintData } from './IkConstraintData';
-import { TransformConstraintData } from './TransformConstraintData';
-import { PathConstraintData, SpacingMode } from './PathConstraintData';
-import { Skin } from './Skin';
-import { EventData } from './EventData';
-import { NumberArrayLike, Color, IHasTextureRegion, PositionMode, RotateMode, TransformMode, Utils, settings } from '@pixi-spine/base';
-import { BLEND_MODES } from '@pixi/core';
 import { Sequence, SequenceMode } from './attachments/Sequence';
+import { BoneData } from './BoneData';
+import { Event } from './Event';
+import { EventData } from './EventData';
+import { IkConstraintData } from './IkConstraintData';
+import { PathConstraintData, SpacingMode } from './PathConstraintData';
+import { SkeletonData } from './SkeletonData';
+import { Skin } from './Skin';
+import { SlotData } from './SlotData';
+import { TransformConstraintData } from './TransformConstraintData';
+import { Color, IHasTextureRegion, NumberArrayLike, PositionMode, RotateMode, settings, TransformMode, Utils } from '@pixi-spine/base';
+
+import type { Attachment, AttachmentLoader, MeshAttachment, VertexAttachment } from './attachments';
 
 /** Loads skeleton data in the Spine JSON format.
  *
@@ -1147,10 +1147,10 @@ export class SkeletonJson {
     }
     static blendModeFromString(str: string) {
         str = str.toLowerCase();
-        if (str == 'normal') return BLEND_MODES.NORMAL;
-        if (str == 'additive') return BLEND_MODES.ADD;
-        if (str == 'multiply') return BLEND_MODES.MULTIPLY;
-        if (str == 'screen') return BLEND_MODES.SCREEN;
+        if (str == 'normal') return 'normal';
+        if (str == 'additive') return 'add';
+        if (str == 'multiply') return 'multiply';
+        if (str == 'screen') return 'screen';
         throw new Error(`Unknown blend mode: ${str}`);
     }
 }

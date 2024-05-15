@@ -1,8 +1,8 @@
 import { Color } from '@pixi-spine/base';
 
-import type { ISlotData } from '@pixi-spine/base';
-import type { BLEND_MODES } from '@pixi/core';
+import type { BLEND_MODES } from 'pixi.js';
 import type { BoneData } from './BoneData';
+import type { ISlotData } from '@pixi-spine/base';
 
 /**
  * @public

@@ -1,7 +1,6 @@
-import { Texture, SCALE_MODES, MIPMAP_MODES, ALPHA_MODES, Rectangle } from '@pixi/core';
 import { TextureRegion, TextureWrap, TextureFilter, filterFromString } from './TextureRegion';
 import type { Map, Disposable } from './Utils';
-import type { BaseTexture } from '@pixi/core';
+import { TextureSource, Texture, SCALE_MODES, Rectangle } from 'pixi.js';
 
 class RegionFields {
     x = 0;
@@ -22,7 +21,7 @@ export class TextureAtlas implements Disposable {
     pages = new Array<TextureAtlasPage>();
     regions = new Array<TextureAtlasRegion>();
 
-    constructor(atlasText?: string, textureLoader?: (path: string, loaderFunction: (tex: BaseTexture) => any) => any, callback?: (obj: TextureAtlas) => any) {
+    constructor(atlasText?: string, textureLoader?: (path: string, loaderFunction: (tex: TextureSource) => any) => any, callback?: (obj: TextureAtlas) => any) {
         if (atlasText) {
             this.addSpineAtlas(atlasText, textureLoader, callback);
         }
@@ -41,10 +40,10 @@ export class TextureAtlas implements Disposable {
         if (page === null) {
             page = new TextureAtlasPage();
             page.name = 'texturePage';
-            const baseTexture = texture.baseTexture;
+            const baseTexture = texture.source;
 
-            page.width = baseTexture.realWidth;
-            page.height = baseTexture.realHeight;
+            page.width = baseTexture.pixelWidth;
+            page.height = baseTexture.pixelHeight;
             page.baseTexture = baseTexture;
             // those fields are not relevant in Pixi
             page.minFilter = page.magFilter = TextureFilter.Nearest;
@@ -71,11 +70,11 @@ export class TextureAtlas implements Disposable {
         }
     }
 
-    public addSpineAtlas(atlasText: string, textureLoader: (path: string, loaderFunction: (tex: BaseTexture) => any) => any, callback: (obj: TextureAtlas) => any) {
+    public addSpineAtlas(atlasText: string, textureLoader: (path: string, loaderFunction: (tex: TextureSource) => any) => any, callback: (obj: TextureAtlas) => any) {
         return this.load(atlasText, textureLoader, callback);
     }
 
-    private load(atlasText: string, textureLoader: (path: string, loaderFunction: (tex: BaseTexture) => any) => any, callback: (obj: TextureAtlas) => any) {
+    private load(atlasText: string, textureLoader: (path: string, loaderFunction: (tex: TextureSource) => any) => any, callback: (obj: TextureAtlas) => any) {
         if (textureLoader == null) {
             throw new Error('textureLoader cannot be null.');
         }
@@ -189,7 +188,7 @@ export class TextureAtlas implements Disposable {
                     }
                     this.pages.push(page);
 
-                    textureLoader(page.name, (texture: BaseTexture) => {
+                    textureLoader(page.name, (texture: TextureSource) => {
                         if (texture === null) {
                             this.pages.splice(this.pages.indexOf(page), 1);
 
@@ -198,16 +197,16 @@ export class TextureAtlas implements Disposable {
                         page.baseTexture = texture;
                         // TODO: set scaleMode and mipmapMode from spine
                         if (page.pma) {
-                            texture.alphaMode = ALPHA_MODES.PMA;
+                            texture.alphaMode = 'premultiplied-alpha';
                         }
-                        if (!texture.valid) {
-                            texture.setSize(page.width, page.height);
+                        if (!texture.uid) {
+                            texture.resize(page.width, page.height);
                         }
                         page.setFilters();
 
                         if (!page.width || !page.height) {
-                            page.width = texture.realWidth;
-                            page.height = texture.realHeight;
+                            page.width = texture.pixelWidth;
+                            page.height = texture.pixelHeight;
                             if (!page.width || !page.height) {
                                 console.log(
                                     `ERROR spine atlas page ${page.name}: meshes wont work if you dont specify size in atlas (http://www.html5gamedevs.com/topic/18888-pixi-spines-and-meshes/?p=107121)`
@@ -270,7 +269,7 @@ export class TextureAtlas implements Disposable {
                     const orig = new Rectangle(0, 0, region.originalWidth, region.originalHeight);
                     const trim = new Rectangle(region.offsetX, region.originalHeight - region.height - region.offsetY, region.width, region.height);
 
-                    atlasRegion.texture = new Texture(atlasRegion.page.baseTexture, frame, orig, trim, region.rotate);
+                    atlasRegion.texture = new Texture({ source: atlasRegion.page.baseTexture, frame, orig, trim, rotate: region.rotate });
                     atlasRegion.index = region.index;
                     atlasRegion.texture.updateUvs();
 
@@ -294,7 +293,7 @@ export class TextureAtlas implements Disposable {
 
     dispose() {
         for (let i = 0; i < this.pages.length; i++) {
-            this.pages[i].baseTexture.dispose();
+            this.pages[i].baseTexture.unload();
         }
     }
 }
@@ -351,7 +350,7 @@ export class TextureAtlasPage {
     magFilter: TextureFilter = TextureFilter.Nearest;
     uWrap: TextureWrap = TextureWrap.ClampToEdge;
     vWrap: TextureWrap = TextureWrap.ClampToEdge;
-    baseTexture: BaseTexture;
+    baseTexture: TextureSource;
     width: number;
     height: number;
     pma: boolean;
@@ -362,10 +361,14 @@ export class TextureAtlasPage {
 
         if (filter == TextureFilter.Linear) {
             tex.scaleMode = SCALE_MODES.LINEAR;
-        } else if (this.minFilter == TextureFilter.Nearest) {
+        } else if (filter == TextureFilter.Nearest) {
             tex.scaleMode = SCALE_MODES.NEAREST;
         } else {
-            tex.mipmap = MIPMAP_MODES.POW2;
+            // TODO MIPMAP_MODES POW2
+            // if (tex.resolution >= 2) {
+            //     tex.autoGenerateMipmaps = true;
+            //     tex.updateMipmaps();
+            // }
             if (filter == TextureFilter.MipMapNearestNearest) {
                 tex.scaleMode = SCALE_MODES.NEAREST;
             } else {

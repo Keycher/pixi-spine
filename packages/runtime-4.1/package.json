@@ -1,6 +1,6 @@
 {
   "name": "@pixi-spine/runtime-4.1",
-  "version": "4.0.3",
+  "version": "5.0.0",
   "description": "Pixi runtime for spine 4.1 models",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
@@ -21,8 +21,8 @@
     }
   },
   "peerDependencies": {
-    "@pixi-spine/base": "^4.0.0",
-    "@pixi/core": "^7.0.0"
+    "@pixi-spine/base": "^5.0.0",
+    "pixi.js": "^8.0.0"
   },
   "scripts": {
     "build": "run-p build:*",

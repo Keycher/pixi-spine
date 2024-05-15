@@ -1,9 +1,9 @@
+import type { BLEND_MODES, Matrix } from 'pixi.js';
 import type { AttachmentType } from './AttachmentType';
 import type { IAnimation, IEventData } from './IAnimation';
 import type { IIkConstraintData, IPathConstraintData, ITransformConstraintData } from './IConstraint';
-import type { Color, Vector2, Map } from './Utils';
 import type { TextureRegion } from './TextureRegion';
-import type { BLEND_MODES, Matrix } from '@pixi/core';
+import type { Color, Map, Vector2 } from './Utils';
 
 // This enum was moved from BoneData.ts of spine 3.7, 3.8 and 4.0
 
@@ -158,7 +158,7 @@ export interface ISlot {
     data: ISlotData;
     color: Color;
     darkColor: Color;
-    blendMode: number;
+    blendMode: BLEND_MODES;
     bone: IBone;
 
     sprites?: any;
