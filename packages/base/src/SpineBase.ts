@@ -1,4 +1,4 @@
-import { Color, Container, Graphics, MeshSimple, Polygon, Rectangle, Sprite, Texture } from 'pixi.js';
+import { Color, Container, Graphics, MeshSimple, Rectangle, Sprite, Texture } from 'pixi.js';
 import { AttachmentType } from './core/AttachmentType';
 import { TextureRegion } from './core/TextureRegion';
 import { MathUtils } from './core/Utils';
@@ -439,15 +439,14 @@ export abstract class SpineBase<
                 // Adding null check as it is possible for slotContainer.parent to be null in the event of a spine being disposed off in its loop callback
                 if (slotContainer.parent !== null && slotContainer.parent !== this) {
                     slotContainer.parent.removeChild(slotContainer);
-                    // silend add hack
-                    (slotContainer as any).parent = this;
+                    this.addChild(slotContainer);
                 }
             }
             if (slot.currentGraphics && slot.getAttachment()) {
                 clippingContainer = slot.clippingContainer;
                 clippingAttachment = slot.getAttachment() as IClippingAttachment;
-                clippingContainer.children.length = 0;
-                this.children[i] = slotContainer;
+                clippingContainer.removeChildren();
+                this.addChildAt(slotContainer, i);
 
                 if (clippingAttachment.endSlot === slot.data) {
                     clippingAttachment.endSlot = null;
@@ -459,10 +458,15 @@ export abstract class SpineBase<
                     c = this.tempClipContainers[i] = this.newContainer();
                     c.visible = false;
                 }
-                this.children[i] = c;
+                if (this.children[i]) {
+                    this.removeChildAt(i);
+                }
+                this.addChildAt(c, i);
 
                 // silent remove hack
-                (slotContainer as any).parent = null;
+                if ((slotContainer as any).parent && (slotContainer as any).parent !== clippingContainer) {
+                    (slotContainer as any).parent.removeChild(slotContainer);
+                }
                 clippingContainer.addChild(slotContainer);
                 if (clippingAttachment.endSlot == slot.data) {
                     clippingContainer.renderable = true;
@@ -470,7 +474,10 @@ export abstract class SpineBase<
                     clippingAttachment = null;
                 }
             } else {
-                this.children[i] = slotContainer;
+                if (this.children[i]) {
+                    this.removeChildAt(i);
+                }
+                this.addChildAt(slotContainer, i);
             }
         }
 
@@ -512,6 +519,7 @@ export abstract class SpineBase<
         mesh.attachment = attachment;
         mesh.texture = region.texture;
         region.texture.updateUvs();
+        mesh.geometry.getBuffer('aUV').data = attachment.regionUVs;
         // mesh.uvBuffer.update(attachment.regionUVs);
     }
 
@@ -610,13 +618,8 @@ export abstract class SpineBase<
 
     // @ts-ignore
     createGraphics(slot: ISlot, clip: IClippingAttachment) {
-        const graphics = this.newGraphics();
-        const poly = new Polygon([]);
+        const graphics = new Graphics().poly([]).fill(0xffffff);
 
-        graphics.clear();
-        graphics.beginFill(0xffffff, 1);
-        graphics.drawPolygon(poly as any);
-        graphics.renderable = false;
         slot.currentGraphics = graphics;
         slot.clippingContainer = this.newContainer();
         slot.clippingContainer.mask = slot.currentGraphics;
@@ -625,13 +628,13 @@ export abstract class SpineBase<
     }
 
     updateGraphics(slot: ISlot, clip: IClippingAttachment) {
-        const geom = slot.currentGraphics.context._activePath;
-        const vertices = (geom.shapePath.shapePrimitives[0].shape as Polygon).points;
+        const vertices = [];
         const n = clip.worldVerticesLength;
 
         vertices.length = n;
         clip.computeWorldVertices(slot, 0, n, vertices, 0, 2);
-        geom.dirty = true;
+
+        slot.currentGraphics.clear().poly(vertices).fill(0xffffff);
     }
 
     /**
